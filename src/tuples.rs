@@ -1,6 +1,6 @@
 use std::fmt;
 use std::ops::{Add, Div, Mul, Neg, Sub};
-use num::traits::{Num};
+use num::traits::{Float, Num};
 
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 
@@ -9,6 +9,16 @@ pub struct Vec3<T: Num> {
     pub x: T,
     pub y: T,
     pub z: T
+}
+
+impl<T: Float + Num> Vec3<T> {
+    fn magnitude(&self) -> T {
+        return self.norm().sqrt();
+    }
+
+    fn norm(&self) -> T {
+        self.x * self.x + self.y * self.y + self.z * self.z
+    }
 }
 
 impl<T: fmt::Display + Num + fmt::Debug> fmt::Display for Vec3<T> {
@@ -194,5 +204,19 @@ mod tests {
         let result = vec1 / 2.0;
         let expected_result = Vec3::<f64>{x:0.5, y:-1.0, z:1.5};
         assert_relative_eq!(result, expected_result);
+    }
+
+    #[test]
+    fn compute_vector_magnitude() {
+        let vec1 = Vec3::<f64>{x:1.0, y:0.0, z:0.0};
+        assert_relative_eq!(vec1.magnitude(), 1.0);
+        let vec2 = Vec3::<f64>{x:0.0, y:1.0, z:0.0};
+        assert_relative_eq!(vec2.magnitude(), 1.0);
+        let vec3 = Vec3::<f64>{x:0.0, y:0.0, z:1.0};
+        assert_relative_eq!(vec3.magnitude(), 1.0);
+        let vec4 = Vec3::<f64>{x:1.0, y:2.0, z:3.0};
+        assert_relative_eq!(vec4.magnitude(), 14.0.sqrt());
+        let vec5 = Vec3::<f64>{x:-1.0, y:-2.0, z:-3.0};
+        assert_relative_eq!(vec5.magnitude(), 14.0.sqrt());
     }
 }
