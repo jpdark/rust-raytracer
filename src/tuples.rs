@@ -12,12 +12,21 @@ pub struct Vec3<T: Num> {
 }
 
 impl<T: Float + Num> Vec3<T> {
-    fn magnitude(&self) -> T {
+    pub fn magnitude(&self) -> T {
         return self.norm().sqrt();
     }
 
-    fn norm(&self) -> T {
+    pub fn norm(&self) -> T {
         self.x * self.x + self.y * self.y + self.z * self.z
+    }
+
+    pub fn normalize(&self) -> Self {
+        let mag = self.magnitude();
+        Self {
+            x: self.x / mag,
+            y: self.y / mag,
+            z: self.z / mag
+        }
     }
 }
 
@@ -207,6 +216,14 @@ mod tests {
     }
 
     #[test]
+    fn compute_vector_norm() {
+        let vec1 = Vec3::<f64>{x:1.0, y:2.0, z:0.0};
+        let expected_result = 5.0;
+        let result = vec1.norm();
+        assert_relative_eq!(result, expected_result);
+    }
+
+    #[test]
     fn compute_vector_magnitude() {
         let vec1 = Vec3::<f64>{x:1.0, y:0.0, z:0.0};
         assert_relative_eq!(vec1.magnitude(), 1.0);
@@ -218,5 +235,16 @@ mod tests {
         assert_relative_eq!(vec4.magnitude(), 14.0.sqrt());
         let vec5 = Vec3::<f64>{x:-1.0, y:-2.0, z:-3.0};
         assert_relative_eq!(vec5.magnitude(), 14.0.sqrt());
+    }
+
+    #[test]
+    fn normalize_vector() {
+        let vec1 = Vec3::<f64>{x:4.0, y:0.0, z:0.0};
+        let expected_result = Vec3::<f64>{x:1.0, y:0.0, z:0.0};
+        assert_relative_eq!(vec1.normalize(), expected_result);
+
+        let vec1 = Vec3::<f64>{x:1.0, y:2.0, z:3.0};
+        let expected_result = Vec3::<f64>{x:1.0/14.0.sqrt(), y:2.0/14.0.sqrt(), z:3.0/14.0.sqrt()};
+        assert_relative_eq!(vec1.normalize(), expected_result);
     }
 }

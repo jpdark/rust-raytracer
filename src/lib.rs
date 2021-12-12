@@ -9,4 +9,4 @@
 #[macro_use]
 extern crate approx;
 
-mod tuples;
+pub mod tuples;
