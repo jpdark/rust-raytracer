@@ -44,6 +44,20 @@ impl<T: Float + Num> Vec3<T> {
             z: self.z / mag
         }
     }
+
+    /// Compute dot product.
+    pub fn dot(&self, rhs: Self) -> T {
+        self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
+    }
+
+    /// Compute dot product.
+    pub fn cross(&self, rhs: Self) -> Self {
+        Self{
+			x: self.y * rhs.z - self.z * rhs.y,
+			y: self.z * rhs.x - self.x * rhs.z,
+			z: self.x * rhs.y - self.y * rhs.x
+		}
+    }
 }
 
 impl<T: fmt::Display + Num + fmt::Debug> fmt::Display for Vec3<T> {
@@ -262,5 +276,20 @@ mod tests {
         let vec1 = Vec3::<f64>{x:1.0, y:2.0, z:3.0};
         let expected_result = Vec3::<f64>{x:1.0/14.0.sqrt(), y:2.0/14.0.sqrt(), z:3.0/14.0.sqrt()};
         assert_relative_eq!(vec1.normalize(), expected_result);
+    }
+
+    #[test]
+    fn dot_product() {
+        let vec1 = Vec3::<f64>{x:1.0, y:2.0, z:3.0};
+        let vec2 = Vec3::<f64>{x:2.0, y:3.0, z:4.0};
+        assert_relative_eq!(vec1.dot(vec2), 20.0);
+    }
+
+    #[test]
+    fn cross_product() {
+        let vec1 = Vec3::<f64>{x:1.0, y:2.0, z:3.0};
+        let vec2 = Vec3::<f64>{x:2.0, y:3.0, z:4.0};
+        let expected_result = Vec3::<f64>{x:-1.0, y:2.0, z:-1.0};
+        assert_relative_eq!(vec1.cross(vec2), expected_result);
     }
 }
