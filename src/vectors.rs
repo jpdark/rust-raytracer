@@ -1,25 +1,41 @@
+//! Generalized three dimensional vector type.
+//!
+//!
+//! ##### To do
+//! - Tests for f32
+//! - Implement for integer types
+
 use std::fmt;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 use num::traits::{Float, Num};
 
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 
+/// Vec3 is a three dimensional vector.
+///
+/// The three dimensions are named x, y and z, respectively.
 #[derive(Debug, PartialEq)]
 pub struct Vec3<T: Num> {
+    /// x-dimension
     pub x: T,
+    /// y-dimension
     pub y: T,
+    /// z-dimension
     pub z: T
 }
 
 impl<T: Float + Num> Vec3<T> {
+    /// Return vector magnitude.
     pub fn magnitude(&self) -> T {
         return self.norm().sqrt();
     }
 
+    /// Return vector L1-norm.
     pub fn norm(&self) -> T {
         self.x * self.x + self.y * self.y + self.z * self.z
     }
 
+    /// Return normalized vector.
     pub fn normalize(&self) -> Self {
         let mag = self.magnitude();
         Self {
