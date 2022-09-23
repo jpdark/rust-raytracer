@@ -13,4 +13,5 @@ extern crate approx;
 #[cfg(not(test))]
 extern crate approx;
 
+pub mod canvas;
 pub mod vectors;

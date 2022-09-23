@@ -51,8 +51,8 @@ impl<T: Float + Num> Vec3<T> {
     }
 
     /// Compute dot product.
-    pub fn cross(&self, rhs: Self) -> Self {
-        Self{
+    pub fn cross(&self, rhs: &Self) -> Self {
+        Self {
 			x: self.y * rhs.z - self.z * rhs.y,
 			y: self.z * rhs.x - self.x * rhs.z,
 			z: self.x * rhs.y - self.y * rhs.x
@@ -290,6 +290,8 @@ mod tests {
         let vec1 = Vec3::<f64>{x:1.0, y:2.0, z:3.0};
         let vec2 = Vec3::<f64>{x:2.0, y:3.0, z:4.0};
         let expected_result = Vec3::<f64>{x:-1.0, y:2.0, z:-1.0};
-        assert_relative_eq!(vec1.cross(vec2), expected_result);
+        assert_relative_eq!(vec1.cross(&vec2), expected_result);
+        let expected_result2 = Vec3::<f64>{x:1.0, y:-2.0, z:1.0};
+        assert_relative_eq!(vec2.cross(&vec1), expected_result2);
     }
 }
