@@ -3,7 +3,7 @@
 //!
 
 use std::fmt;
-use std::ops::{Add, Sub};
+use std::ops::{Add, Sub, Mul};
 use num::traits::{Num};
 
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
@@ -68,7 +68,31 @@ impl <T: Num> Sub<Color<T>> for Color<T> {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self {
-        Self(self.0 + rhs.0, self.1 + rhs.1, self.2 + rhs.2)
+        Self(self.0 - rhs.0, self.1 - rhs.1, self.2 - rhs.2)
+    }
+}
+
+impl <T: Num + Copy> Mul<T> for Color<T> {
+    type Output = Self;
+
+    fn mul(self, scalar: T) -> Self {
+        Self (
+            self.0 * scalar,
+            self.1 * scalar,
+            self.2 * scalar
+        )
+    }
+}
+
+impl <T: Num + Copy> Mul<Color<T>> for Color<T> {
+    type Output = Self;
+
+    fn mul(self, rhs: Color<T>) -> Self {
+        Self (
+            self.0 * rhs.0,
+            self.1 * rhs.1,
+            self.2 * rhs.2
+        )
     }
 }
 
@@ -79,11 +103,36 @@ mod test_color {
 
     #[test]
     fn add_colors() {
-        let col1 = Color(0.9, 0.6, 0.75);
-        let col2 = Color(0.7, 0.1, 0.25);
-        let result = col1 + col2;
-        let expected_result = Color(1.6, 0.7, 1.0);
+        let col1: Color<f64> = Color(0.9, 0.6, 0.75);
+        let col2: Color<f64> = Color(0.7, 0.1, 0.25);
+        let result: Color<f64> = col1 + col2;
+        let expected_result: Color<f64> = Color(1.6, 0.7, 1.0);
         assert_relative_eq!(result, expected_result);
+    }
+    #[test]
+    fn subtract_colors() {
+        let col1: Color<f64> = Color(0.9, 0.6, 0.75);
+        let col2: Color<f64> = Color(0.7, 0.1, 0.25);
+        let result: Color<f64> = col1 - col2;
+        let expected_result: Color<f64> = Color(0.2, 0.5, 0.5);
+        assert_relative_eq!(result, expected_result);
+    }
+
+    #[test]
+    fn multiply_color_by_scalar() {
+        let col: Color<f64> = Color(0.2, 0.3, 0.4);
+        let result: Color<f64> = col * 2.0;
+        let expected_result: Color<f64> = Color(0.4, 0.6, 0.8);
+        assert_relative_eq!(result, expected_result);
+    }
+
+    #[test]
+    fn multiply_colors() {
+        let col1: Color<f64> = Color(1.0, 0.2, 0.4);
+        let col2: Color<f64> = Color(0.9, 1.0, 0.1);
+        let result: Color<f64> = col1 * col2;
+        let expected_result: Color<f64> = Color(0.9, 0.2, 0.04);
+        assert_relative_eq!(result, expected_result)
     }
 }
 
