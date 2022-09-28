@@ -1,9 +1,16 @@
-//! Generalized three dimensional vector type.
+//! Generalized vector types and vector operations.
 //!
+//! Provides generic abstractions over three dimensional vectors, for floating
+//! point numbers. Only simple single vector, scalar-vector and vector-vector
+//! operations are implemented.
 //!
-//! ##### To do
-//! - Tests for f32
-//! - Implement for integer types
+//! # Examples
+//! ```
+//! use crate::vectors::{Vec3}
+//!
+//! /// Creates a three dimensional vector with 64-bit floats.
+//! let vec1 = Vec3::<f64>{x:1.0, y:2.0, z:3.0};
+//! ```
 
 use std::fmt;
 use std::ops::{Add, Div, Mul, Neg, Sub};
