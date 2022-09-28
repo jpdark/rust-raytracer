@@ -2,144 +2,89 @@
 //!
 //!
 
-use std::fmt;
-use std::ops::{Add, Sub, Mul};
-use num::traits::{Num};
+use std::ops::{IndexMut, Index};
 
-use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-
-/// Represents a color
-#[derive(Debug, PartialEq)]
-pub struct Color<T: Num>(T, T, T);
-
-impl <T: fmt::Display + Num + fmt::Debug> fmt::Display for Color<T> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "({:?}, {:?}, {:?})", self.0, self.1, self.2)
-    }
-}
-
-impl <T: AbsDiffEq + Num> AbsDiffEq for Color<T> where T::Epsilon: Copy {
-    type Epsilon = T::Epsilon;
-
-    fn default_epsilon() -> T::Epsilon {
-        T::default_epsilon()
-    }
-
-    fn abs_diff_eq(&self, rhs: &Self, epsilon: T::Epsilon) -> bool {
-        T::abs_diff_eq(&self.0, &rhs.0, epsilon) &&
-        T::abs_diff_eq(&self.1, &rhs.1, epsilon) &&
-        T::abs_diff_eq(&self.2, &rhs.2, epsilon)
-    }
-}
-
-impl <T: RelativeEq + Num> RelativeEq for Color<T> where T::Epsilon: Copy {
-    fn default_max_relative() -> T::Epsilon {
-        T::default_max_relative()
-    }
-
-    fn relative_eq(&self, rhs: &Self, epsilon: T::Epsilon, max_relative: T::Epsilon) -> bool {
-        T::relative_eq(&self.0, &rhs.0, epsilon, max_relative) &&
-        T::relative_eq(&self.1, &rhs.1, epsilon, max_relative) &&
-        T::relative_eq(&self.2, &rhs.2, epsilon, max_relative)
-    }
-}
-
-impl <T: UlpsEq + Num> UlpsEq for Color<T> where T::Epsilon: Copy {
-    fn default_max_ulps() -> u32 {
-        T::default_max_ulps()
-    }
-
-    fn ulps_eq(&self, rhs: &Self, epsilon: T::Epsilon, max_ulps: u32) -> bool {
-        T::ulps_eq(&self.0, &rhs.0, epsilon, max_ulps) &&
-        T::ulps_eq(&self.1, &rhs.1, epsilon, max_ulps) &&
-        T::ulps_eq(&self.2, &rhs.2, epsilon, max_ulps)
-    }
-}
-
-impl <T: Num>Add<Color<T>> for Color<T> {
-    type Output = Self;
-
-    fn add(self, rhs: Self) -> Self {
-        Self(self.0 + rhs.0, self.1 + rhs.1, self.2 + rhs.2)
-    }
-}
-
-impl <T: Num> Sub<Color<T>> for Color<T> {
-    type Output = Self;
-
-    fn sub(self, rhs: Self) -> Self {
-        Self(self.0 - rhs.0, self.1 - rhs.1, self.2 - rhs.2)
-    }
-}
-
-impl <T: Num + Copy> Mul<T> for Color<T> {
-    type Output = Self;
-
-    fn mul(self, scalar: T) -> Self {
-        Self (
-            self.0 * scalar,
-            self.1 * scalar,
-            self.2 * scalar
-        )
-    }
-}
-
-impl <T: Num + Copy> Mul<Color<T>> for Color<T> {
-    type Output = Self;
-
-    fn mul(self, rhs: Color<T>) -> Self {
-        Self (
-            self.0 * rhs.0,
-            self.1 * rhs.1,
-            self.2 * rhs.2
-        )
-    }
-}
-
-
-#[cfg(test)]
-mod test_color {
-    use super::Color;
-
-    #[test]
-    fn add_colors() {
-        let col1: Color<f64> = Color(0.9, 0.6, 0.75);
-        let col2: Color<f64> = Color(0.7, 0.1, 0.25);
-        let result: Color<f64> = col1 + col2;
-        let expected_result: Color<f64> = Color(1.6, 0.7, 1.0);
-        assert_relative_eq!(result, expected_result);
-    }
-    #[test]
-    fn subtract_colors() {
-        let col1: Color<f64> = Color(0.9, 0.6, 0.75);
-        let col2: Color<f64> = Color(0.7, 0.1, 0.25);
-        let result: Color<f64> = col1 - col2;
-        let expected_result: Color<f64> = Color(0.2, 0.5, 0.5);
-        assert_relative_eq!(result, expected_result);
-    }
-
-    #[test]
-    fn multiply_color_by_scalar() {
-        let col: Color<f64> = Color(0.2, 0.3, 0.4);
-        let result: Color<f64> = col * 2.0;
-        let expected_result: Color<f64> = Color(0.4, 0.6, 0.8);
-        assert_relative_eq!(result, expected_result);
-    }
-
-    #[test]
-    fn multiply_colors() {
-        let col1: Color<f64> = Color(1.0, 0.2, 0.4);
-        let col2: Color<f64> = Color(0.9, 1.0, 0.1);
-        let result: Color<f64> = col1 * col2;
-        let expected_result: Color<f64> = Color(0.9, 0.2, 0.04);
-        assert_relative_eq!(result, expected_result)
-    }
-}
+use crate::color::Color;
 
 /// Represents a 2d Canvas
+#[derive(Default)]
 pub struct Canvas {
     /// Height
-    pub height: i32,
+    pub height: usize,
     /// Width
-    pub width: i32
+    pub width: usize,
+    /// Pixels
+    pub pixels: Vec<Color<f32>>
+}
+
+impl Canvas {
+    /// Construct a new instance of Canvas
+    pub fn new(height: usize, width: usize) -> Self {
+        let size: usize = width * height;
+        let pixels: Vec<Color<f32>> = vec![Color(0.0, 0.0, 0.0); size];
+        Self { height, width, pixels }
+    }
+
+    /// Get value at given row and column if index is in bounds.
+    pub fn get(&self, row: usize, column: usize) -> Option<&Color<f32>> {
+        self.get_index(row, column)
+            .map(|index| &self.pixels[index])
+    }
+
+    /// Get mutable value at given row and column if index is in bounds.
+    pub fn get_mut(&mut self, row: usize, column: usize) -> Option<&mut Color<f32>> {
+        self.get_index(row, column)
+            .map(move |index| &mut self.pixels[index])
+    }
+
+    /// Get index for row & column
+    fn get_index(&self, row: usize, column: usize) -> Option<usize> {
+        if row < self.height && column < self.width {
+            Some(row * self.width + column)
+        } else {
+            None
+        }
+    }
+}
+
+impl Index<(usize, usize)> for Canvas {
+    type Output = Color<f32>;
+
+    fn index(&self, indices: (usize, usize)) -> &Self::Output {
+        let (row, column) = indices;
+        self.get(row, column).unwrap()
+    }
+}
+
+impl IndexMut<(usize, usize)> for Canvas {
+    fn index_mut(&mut self, indices: (usize, usize)) -> &mut Self::Output {
+        let (row, column) = indices;
+        self.get_mut(row, column).unwrap()
+    }
+}
+
+#[cfg(test)]
+mod test_canvas {
+    use crate::color::Color;
+
+    use super::Canvas;
+
+    #[test]
+    fn create_canvas() {
+        let canvas: Canvas = Canvas::new(10, 20);
+        assert!(canvas.height == 10);
+        assert!(canvas.width == 20);
+        assert!(canvas.pixels.len() == 200);
+        // Assert all pixels are zero
+        for pix in canvas.pixels.iter() {
+            assert!(*pix == Color(0.0, 0.0, 0.0))
+        }
+    }
+
+    #[test]
+    fn write_pixels_to_canvas() {
+        let mut canvas: Canvas = Canvas::new(10, 20);
+        let red: Color<f32> = Color(1.0, 0.0, 0.0);
+        canvas[(2, 3)] = red;
+    }
 }

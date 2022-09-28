@@ -14,4 +14,5 @@ extern crate approx;
 extern crate approx;
 
 pub mod canvas;
+pub mod color;
 pub mod vectors;
