@@ -1,23 +1,28 @@
 //! Color implemented as simple tuple.
 //!
 //!
+use num::traits::Num;
 use std::fmt;
-use std::ops::{Add, Sub, Mul};
-use num::traits::{Num};
+use std::ops::{Add, Mul, Sub};
 
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
+
+const COLOR_BLACK: Color<f32> = Color(0.0, 0.0, 0.0);
 
 /// Represents a color
 #[derive(Debug, Clone, PartialEq)]
 pub struct Color<T: Num>(pub T, pub T, pub T);
 
-impl <T: fmt::Display + Num + fmt::Debug> fmt::Display for Color<T> {
+impl<T: fmt::Display + Num + fmt::Debug> fmt::Display for Color<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "({:?}, {:?}, {:?})", self.0, self.1, self.2)
     }
 }
 
-impl <T: AbsDiffEq + Num> AbsDiffEq for Color<T> where T::Epsilon: Copy {
+impl<T: AbsDiffEq + Num> AbsDiffEq for Color<T>
+where
+    T::Epsilon: Copy,
+{
     type Epsilon = T::Epsilon;
 
     fn default_epsilon() -> T::Epsilon {
@@ -25,37 +30,43 @@ impl <T: AbsDiffEq + Num> AbsDiffEq for Color<T> where T::Epsilon: Copy {
     }
 
     fn abs_diff_eq(&self, rhs: &Self, epsilon: T::Epsilon) -> bool {
-        T::abs_diff_eq(&self.0, &rhs.0, epsilon) &&
-        T::abs_diff_eq(&self.1, &rhs.1, epsilon) &&
-        T::abs_diff_eq(&self.2, &rhs.2, epsilon)
+        T::abs_diff_eq(&self.0, &rhs.0, epsilon)
+            && T::abs_diff_eq(&self.1, &rhs.1, epsilon)
+            && T::abs_diff_eq(&self.2, &rhs.2, epsilon)
     }
 }
 
-impl <T: RelativeEq + Num> RelativeEq for Color<T> where T::Epsilon: Copy {
+impl<T: RelativeEq + Num> RelativeEq for Color<T>
+where
+    T::Epsilon: Copy,
+{
     fn default_max_relative() -> T::Epsilon {
         T::default_max_relative()
     }
 
     fn relative_eq(&self, rhs: &Self, epsilon: T::Epsilon, max_relative: T::Epsilon) -> bool {
-        T::relative_eq(&self.0, &rhs.0, epsilon, max_relative) &&
-        T::relative_eq(&self.1, &rhs.1, epsilon, max_relative) &&
-        T::relative_eq(&self.2, &rhs.2, epsilon, max_relative)
+        T::relative_eq(&self.0, &rhs.0, epsilon, max_relative)
+            && T::relative_eq(&self.1, &rhs.1, epsilon, max_relative)
+            && T::relative_eq(&self.2, &rhs.2, epsilon, max_relative)
     }
 }
 
-impl <T: UlpsEq + Num> UlpsEq for Color<T> where T::Epsilon: Copy {
+impl<T: UlpsEq + Num> UlpsEq for Color<T>
+where
+    T::Epsilon: Copy,
+{
     fn default_max_ulps() -> u32 {
         T::default_max_ulps()
     }
 
     fn ulps_eq(&self, rhs: &Self, epsilon: T::Epsilon, max_ulps: u32) -> bool {
-        T::ulps_eq(&self.0, &rhs.0, epsilon, max_ulps) &&
-        T::ulps_eq(&self.1, &rhs.1, epsilon, max_ulps) &&
-        T::ulps_eq(&self.2, &rhs.2, epsilon, max_ulps)
+        T::ulps_eq(&self.0, &rhs.0, epsilon, max_ulps)
+            && T::ulps_eq(&self.1, &rhs.1, epsilon, max_ulps)
+            && T::ulps_eq(&self.2, &rhs.2, epsilon, max_ulps)
     }
 }
 
-impl <T: Num>Add<Color<T>> for Color<T> {
+impl<T: Num> Add<Color<T>> for Color<T> {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self {
@@ -63,7 +74,7 @@ impl <T: Num>Add<Color<T>> for Color<T> {
     }
 }
 
-impl <T: Num> Sub<Color<T>> for Color<T> {
+impl<T: Num> Sub<Color<T>> for Color<T> {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self {
@@ -71,30 +82,21 @@ impl <T: Num> Sub<Color<T>> for Color<T> {
     }
 }
 
-impl <T: Num + Copy> Mul<T> for Color<T> {
+impl<T: Num + Copy> Mul<T> for Color<T> {
     type Output = Self;
 
     fn mul(self, scalar: T) -> Self {
-        Self (
-            self.0 * scalar,
-            self.1 * scalar,
-            self.2 * scalar
-        )
+        Self(self.0 * scalar, self.1 * scalar, self.2 * scalar)
     }
 }
 
-impl <T: Num + Copy> Mul<Color<T>> for Color<T> {
+impl<T: Num + Copy> Mul<Color<T>> for Color<T> {
     type Output = Self;
 
     fn mul(self, rhs: Color<T>) -> Self {
-        Self (
-            self.0 * rhs.0,
-            self.1 * rhs.1,
-            self.2 * rhs.2
-        )
+        Self(self.0 * rhs.0, self.1 * rhs.1, self.2 * rhs.2)
     }
 }
-
 
 #[cfg(test)]
 mod test_color {

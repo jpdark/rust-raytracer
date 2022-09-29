@@ -2,7 +2,7 @@
 //!
 //!
 
-use std::ops::{IndexMut, Index};
+use std::ops::{Index, IndexMut};
 
 use crate::color::Color;
 
@@ -14,7 +14,7 @@ pub struct Canvas {
     /// Width
     pub width: usize,
     /// Pixels
-    pub pixels: Vec<Color<f32>>
+    pub pixels: Vec<Color<f32>>,
 }
 
 impl Canvas {
@@ -22,13 +22,16 @@ impl Canvas {
     pub fn new(height: usize, width: usize) -> Self {
         let size: usize = width * height;
         let pixels: Vec<Color<f32>> = vec![Color(0.0, 0.0, 0.0); size];
-        Self { height, width, pixels }
+        Self {
+            height,
+            width,
+            pixels,
+        }
     }
 
     /// Get value at given row and column if index is in bounds.
     pub fn get(&self, row: usize, column: usize) -> Option<&Color<f32>> {
-        self.get_index(row, column)
-            .map(|index| &self.pixels[index])
+        self.get_index(row, column).map(|index| &self.pixels[index])
     }
 
     /// Get mutable value at given row and column if index is in bounds.
@@ -84,7 +87,7 @@ mod test_canvas {
     #[test]
     fn write_pixels_to_canvas() {
         let mut canvas: Canvas = Canvas::new(10, 20);
-        let red: Color<f32> = Color(1.0, 0.0, 0.0);
-        canvas[(2, 3)] = red;
+        canvas[(2, 3)] = Color(1.0, 0.0, 0.0);
+        assert!(canvas[(2, 3)] == Color(1.0, 0.0, 0.0))
     }
 }
