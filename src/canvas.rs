@@ -21,12 +21,17 @@ impl Canvas {
     /// Construct a new instance of Canvas
     pub fn new(height: usize, width: usize) -> Self {
         let size: usize = width * height;
-        let pixels: Vec<Color<f32>> = vec![Color(0.0, 0.0, 0.0); size];
+        let pixels: Vec<Color<f32>> = vec![Color::new(0.0, 0.0, 0.0); size];
         Self {
             height,
             width,
             pixels,
         }
+    }
+
+    /// Fill all pixels of canvas with color.
+    pub fn fill(&mut self, color: Color<f32>) {
+        self.pixels.fill(color);
     }
 
     /// Get value at given row and column if index is in bounds.
@@ -80,14 +85,14 @@ mod test_canvas {
         assert!(canvas.pixels.len() == 200);
         // Assert all pixels are zero
         for pix in canvas.pixels.iter() {
-            assert!(*pix == Color(0.0, 0.0, 0.0))
+            assert!(*pix == Color::new(0.0, 0.0, 0.0))
         }
     }
 
     #[test]
     fn write_pixels_to_canvas() {
         let mut canvas: Canvas = Canvas::new(10, 20);
-        canvas[(2, 3)] = Color(1.0, 0.0, 0.0);
-        assert!(canvas[(2, 3)] == Color(1.0, 0.0, 0.0))
+        canvas[(2, 3)] = Color::new(1.0, 0.0, 0.0);
+        assert!(canvas[(2, 3)] == Color::new(1.0, 0.0, 0.0))
     }
 }
