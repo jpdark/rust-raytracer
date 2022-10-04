@@ -8,27 +8,23 @@ use crate::canvas::Canvas;
 type PPMString = String;
 
 /// Transform the pixels to continuous string for PPM file.
-/// TODO: Refactor this into smaller units. Use Vec::chunks for instance...
 fn canvas_pixels_to_string(canvas: &Canvas) -> String {
     let mut pixels_string = String::new();
     let mut current_length: usize = 0;
-    let mut pixel_counter: usize = 0;
-    for pixel in &canvas.pixels {
-        for p in pixel.as_rgb8().as_array().iter() {
-            let new_str = format!("{} ", p);
-            current_length = current_length + new_str.len();
-            if current_length > 68 {
-                pixels_string.push_str("\n");
-                current_length = 0;
+    for row in canvas.pixels.chunks(canvas.height) {
+        for pixel in row {
+            for p in pixel.as_rgb8().as_array().iter() {
+                let new_str = format!("{} ", p);
+                current_length = current_length + new_str.len();
+                if current_length > 68 {
+                    pixels_string.push_str("\n");
+                    current_length = 0;
+                }
+                pixels_string.push_str(new_str.as_str())
             }
-            pixels_string.push_str(new_str.as_str())
         }
-        pixel_counter += 1;
-        if pixel_counter == canvas.height {
-            pixels_string.push_str("\n");
-            current_length = 0;
-            pixel_counter = 0;
-        }
+        pixels_string.push_str("\n");
+        current_length = 0;
     }
     return pixels_string.trim_end().to_string();
 }
