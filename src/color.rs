@@ -2,7 +2,7 @@
 //!
 //!
 use num::clamp;
-use num::traits::{Float, Num};
+use num::traits::Num;
 use std::fmt;
 use std::ops::{Add, Mul, Sub};
 
@@ -35,9 +35,9 @@ impl Color<f32> {
     /// Return Color with rgb values as 8-bit integer.
     pub fn as_rgb8(self) -> Color<u8> {
         return Color::<u8>::new(
-            clamp((self.r * 255.0) as u8, 0, 255),
-            clamp((self.g * 255.0) as u8, 0, 255),
-            clamp((self.b * 255.0) as u8, 0, 255),
+            clamp((self.r * 255.0).round() as u8, 0, 255),
+            clamp((self.g * 255.0).round() as u8, 0, 255),
+            clamp((self.b * 255.0).round() as u8, 0, 255),
         );
     }
 }
