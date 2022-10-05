@@ -2,31 +2,39 @@
 //!
 //!
 
-use crate::canvas::Canvas;
+use crate::{canvas::Canvas, color::Color};
 
 /// String formatted as PPM
 type PPMString = String;
 
+fn pixel_row_to_string(row: &[Color<f32>]) -> String {
+    let mut lines = vec![];
+    let mut current_line = String::new();
+    for pixel in row {
+        for p in pixel.as_rgb8().as_array().iter() {
+            let new_str = format!("{} ", p);
+            // There is software out there that requires .ppm file lines to
+            // be shorter than 70 characters. Thus, if the length _will_ be
+            // longer than 70, add newline.
+            if (current_line.len() + new_str.len()) > 70 {
+                lines.push(current_line);
+                current_line = String::new();
+            }
+            current_line.push_str(new_str.as_str())
+        }
+    }
+    lines.push(current_line);
+    lines.join("\n")
+}
+
 /// Transform the pixels to continuous string for PPM file.
 fn canvas_pixels_to_string(canvas: &Canvas) -> String {
     let mut pixels_string = String::new();
-    let mut current_length: usize = 0;
     for row in canvas.pixels.chunks(canvas.height) {
-        for pixel in row {
-            for p in pixel.as_rgb8().as_array().iter() {
-                let new_str = format!("{} ", p);
-                current_length = current_length + new_str.len();
-                if current_length > 68 {
-                    pixels_string.push_str("\n");
-                    current_length = 0;
-                }
-                pixels_string.push_str(new_str.as_str())
-            }
-        }
-        pixels_string.push_str("\n");
-        current_length = 0;
+        let row_string = pixel_row_to_string(row);
+        pixels_string.push_str(format!("{}\n", row_string).as_str());
     }
-    return pixels_string.trim_end().to_string();
+    pixels_string.trim_end().to_string()
 }
 
 /// Reads canvas pixels and writes to PPM string.
@@ -113,8 +121,6 @@ mod test_ppm {
             255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 \n\
             153 255 204 153 255 204 153 255 204 153 255 204 153\n
         ";
-        println!("{}", result);
-        println!("{}", expected_result);
         assert!(result.eq(expected_result))
     }
 }
